@@ -30,6 +30,11 @@ public class TcpClientManager : MonoBehaviour
             SendMessageToPi(lastMessage);
         }
 
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+        SendMessageToPi("launch_eyeloop");
+        }
+
         // Press R to change the message (for testing)
         if (Input.GetKeyDown(KeyCode.R))
         {
