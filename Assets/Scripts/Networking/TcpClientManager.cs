@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using System.Diagnostics;
+using System.Collections;
 
 public class TcpClientManager : MonoBehaviour
 {
@@ -20,8 +21,18 @@ public class TcpClientManager : MonoBehaviour
 
     void Start()
     {
-        SetStaticIP(); // Set static IP for the PC
-        ConnectToServer(); // Connect to the Raspberry Pi server
+        StartCoroutine(StartupSequence());
+    }
+
+    IEnumerator StartupSequence()
+    {
+        SetStaticIP(); // This waits for the .bat file and PowerShell to finish
+
+        // ✅ Wait to allow OS and adapter to apply the new settings
+        yield return new WaitForSeconds(3f);
+
+        UnityEngine.Debug.Log("Attempting to connect to server...");
+        ConnectToServer();
     }
 
     void Update()
@@ -59,20 +70,21 @@ public class TcpClientManager : MonoBehaviour
 
 
         // Path to the PowerShell script to set a static IP address
-        string scriptPath = $"{Application.dataPath}\\Scripts\\Networking\\setStaticIP.ps1";
-
+        string batPath = $"{Application.dataPath}\\Scripts\\Networking\\run_ip_config.bat";
         
         ProcessStartInfo psi = new ProcessStartInfo
         {
-            FileName = "powershell.exe",
-            Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"",
-            UseShellExecute = false,
-            CreateNoWindow = true
+            FileName = batPath,
+            Arguments = "static",        // or "dhcp"
+            UseShellExecute = true,      // Required for elevation
+            Verb = "runas",              // Triggers admin prompt
+            CreateNoWindow = false    
         };
 
         try
         {
-            Process.Start(psi);
+            Process SetStaticIP = Process.Start(psi);
+            SetStaticIP.WaitForExit();
             UnityEngine.Debug.Log("Static IP set.");
         }
         catch (System.Exception e)
@@ -88,21 +100,23 @@ public class TcpClientManager : MonoBehaviour
         // The script should be named "resetDynamicIP.ps1" and should be placed in the "Assets/Scripts/Networking" directory.
 
         // Path to the PowerShell script to reset the IP address to DHCP
-        string scriptPath = $"{Application.dataPath}\\Scripts\\Networking\\resetDynamicIP";
-
+        string batPath = $"{Application.dataPath}\\Scripts\\Networking\\run_ip_config.bat";
+        
         // ProcessStartInfo is used to start a process with specific settings
         ProcessStartInfo psi = new ProcessStartInfo 
         {
-            FileName = "powershell.exe",
-            Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"",
-            UseShellExecute = false,
-            CreateNoWindow = true
+            FileName = batPath,
+            Arguments = "dhcp",        // or "dhcp"
+            UseShellExecute = true,      // Required for elevation
+            Verb = "runas",              // Triggers admin prompt
+            CreateNoWindow = false    
         };
 
         
         try // Ensure the script is executable
         {
-            Process.Start(psi);
+            Process SetDynamicIP = Process.Start(psi);
+            SetDynamicIP.WaitForExit();
             UnityEngine.Debug.Log("IP set backto DHCP.");
         }
         catch (System.Exception e) // Catch any exceptions that occur during the process start
@@ -124,7 +138,7 @@ public class TcpClientManager : MonoBehaviour
             receiveThread.IsBackground = true;
             receiveThread.Start();
 
-            UnityEngine.Debug.LogError("Connected to Raspberry Pi.");
+            UnityEngine.Debug.Log("Connected to Raspberry Pi.");
         }
         catch (Exception e)
         {
@@ -140,7 +154,7 @@ public class TcpClientManager : MonoBehaviour
         {
             byte[] data = Encoding.UTF8.GetBytes(message + "\n");
             stream.Write(data, 0, data.Length);
-            UnityEngine.Debug.LogError("Sent: " + message);
+            UnityEngine.Debug.Log("Sent: " + message);
         }
         catch (Exception e)
         {
@@ -160,12 +174,11 @@ public class TcpClientManager : MonoBehaviour
                 if (bytesRead == 0) break;
 
                 string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                UnityEngine.Debug.LogError("Received: " + message);
+                UnityEngine.Debug.Log("Received: " + message);
             }
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError("Receive error: " + e.Message);
-                break;
             }
         }
 
@@ -181,6 +194,6 @@ public class TcpClientManager : MonoBehaviour
         stream?.Close();
         client?.Close();
 
-        UnityEngine.Debug.LogError("Disconnected from RPI.");
+        UnityEngine.Debug.Log("Disconnected from RPI.");
     }
 }
