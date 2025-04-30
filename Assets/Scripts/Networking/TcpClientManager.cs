@@ -6,7 +6,8 @@ using System.Threading;
 using UnityEngine;
 using System.Diagnostics;
 using System.Collections;
-
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 // This script manages the TCP connection to a Raspberry Pi (RPI) server.
 // It sets a static IP address for the Unity application to communicate with the RPI,
@@ -20,6 +21,7 @@ public class TcpClientManager : MonoBehaviour
     public int port = 65432;
 
     private TcpClient client;
+    public Madgwick9DOFHandler madgwickHandler;
     private NetworkStream stream;
     private Thread receiveThread;
     private bool isConnected = false;
@@ -39,7 +41,7 @@ public class TcpClientManager : MonoBehaviour
         UnityEngine.Debug.Log("Attempting to connect to server...");
         ConnectToServer(); // Connect to the RPI TCP server
 
-        SendMessageToPi("launch_eyeloop"); // Send a message to the RPI to launch the eyeloop program
+        //SendMessageToPi("launch_eyeloop"); // Send a message to the RPI to launch the eyeloop program
     }
 
     void Update()
@@ -140,7 +142,6 @@ public class TcpClientManager : MonoBehaviour
     public void ConnectToServer()
     {
         // This method connects to the RPI TCP server.
-
     
         try
         {
@@ -203,9 +204,8 @@ public class TcpClientManager : MonoBehaviour
                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
                 if (bytesRead == 0) break;
 
-                // Convert the bytes to a string and log it
-                string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                UnityEngine.Debug.Log("Received: " + message);
+                // Decode the incoming packet
+                HandleIncomingData(buffer, bytesRead);
             }
         }
         catch (Exception e)
@@ -216,6 +216,155 @@ public class TcpClientManager : MonoBehaviour
         }
 
         Disconnect();
+    }
+
+
+    private MemoryStream incomingStream = new MemoryStream();
+
+    private void HandleIncomingData(byte[] data, int length)
+    {
+        // Write new incoming bytes
+        incomingStream.Seek(0, SeekOrigin.End);
+        incomingStream.Write(data, 0, length);
+
+        incomingStream.Position = 0; // Start reading from beginning of buffer
+
+        while (true)
+        {
+            if (incomingStream.Length - incomingStream.Position < 4)
+            {
+                // Not enough bytes for header
+                //UnityEngine.Debug.Log("Not enough bytes for header, waiting for more data...");
+                break;
+            }
+
+            long packetStartPos = incomingStream.Position;
+
+            byte typeByte = (byte)incomingStream.ReadByte();
+            char packetType = (char)typeByte;
+
+            byte[] lengthBytes = new byte[3];
+            incomingStream.Read(lengthBytes, 0, 3);
+            int payloadLength = (lengthBytes[0] << 16) | (lengthBytes[1] << 8) | lengthBytes[2];
+
+            if (incomingStream.Length - incomingStream.Position < payloadLength)
+            {
+                // Not enough bytes for full payload
+                incomingStream.Position = packetStartPos; // rewind back, wait for more data
+                //UnityEngine.Debug.Log("Not enough bytes for full payload, waiting for more data...");
+                break;
+            }
+
+
+            // Read full payload
+            byte[] payload = new byte[payloadLength];
+            incomingStream.Read(payload, 0, payloadLength);
+
+            // Handle based on packet type
+            switch (packetType)
+            {
+                case 'J':
+                    string json = Encoding.UTF8.GetString(payload);
+                    HandleJson(json);
+                    break;
+
+                case 'G':
+                    HandleBinary(payload, "jpeg");
+                    break;
+
+                case 'P':
+                    HandleBinary(payload, "png");
+                    break;
+
+                default:
+                    UnityEngine.Debug.LogWarning($"Unknown packet type: {packetType}");
+                    break;
+            }
+        }
+
+        // Clean up already processed bytes
+        long leftoverBytes = incomingStream.Length - incomingStream.Position;
+        if (leftoverBytes > 0)
+        {
+            byte[] leftover = new byte[leftoverBytes];
+            incomingStream.Read(leftover, 0, (int)leftoverBytes);
+            incomingStream.SetLength(0);
+            incomingStream.Write(leftover, 0, leftover.Length);
+        }
+        else
+        {
+            incomingStream.SetLength(0);
+        }
+    }
+
+    private void HandleJson(string json)
+    {
+        try
+        {
+            JObject message = JObject.Parse(json);
+
+            string type = message["type"]?.ToString();
+            JToken data = message["data"];
+
+            //UnityEngine.Debug.Log($"Received JSON Message:");
+            //UnityEngine.Debug.Log($"  Type: {type}");
+            //UnityEngine.Debug.Log($"  Data: {data.ToString()}");
+
+            // Optionally: special handling based on type
+            switch (type)
+            {
+                case "9dof":
+                    //UnityEngine.Debug.Log($"9DOF data recieved");
+                     
+                    if (madgwickHandler != null)
+                    {
+                        //UnityEngine.Debug.Log($"Data: {data}");
+                        // Extract gyro, accel, mag from JSON
+                        Vector3 gyro = ParseVector3(data["gyro"]);
+                        Vector3 accel = ParseVector3(data["accel"]);
+                        Vector3 mag = ParseVector3(data["mag"]);
+
+                        madgwickHandler.Update9DOF(gyro, accel, mag);
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.LogWarning("MadgwickHandler is not assigned!");
+                    }
+                    
+                    break;
+                case "distance":
+                    UnityEngine.Debug.Log($"Distance: {data}");
+                    break;
+                case "control":
+                    UnityEngine.Debug.Log($"Control signal: {data}");
+                    break;
+                case "STATUS":
+                    UnityEngine.Debug.Log($"Status: {data}");
+                    break;
+                default:
+                    UnityEngine.Debug.LogWarning($"Unknown message type: {type}");
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            UnityEngine.Debug.LogError($"Failed to parse JSON: {ex.Message}");
+        }
+    }
+
+    private void HandleBinary(byte[] data, string format)
+    {
+        UnityEngine.Debug.Log($"Received binary data ({format}) ({data.Length} bytes)");
+        // TODO: Load into a Texture2D, save to disk, etc.
+    }
+
+    private Vector3 ParseVector3(Newtonsoft.Json.Linq.JToken token)
+    {
+        return new Vector3(
+            token["x"]?.ToObject<float>() ?? 0f,
+            token["y"]?.ToObject<float>() ?? 0f,
+            token["z"]?.ToObject<float>() ?? 0f
+        );
     }
 
     public void Disconnect()
