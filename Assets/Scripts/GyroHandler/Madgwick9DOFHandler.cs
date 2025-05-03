@@ -110,6 +110,6 @@ public class Madgwick9DOFHandler : MonoBehaviour
     private Quaternion ConvertSensorToUnity(Quaternion q)
     {
         // Final correct mapping: fixes roll, yaw, pitch
-        return new Quaternion(-q.x, q.y, -q.z, -q.w);
+        return new Quaternion(q.x, q.y, q.z, -q.w);
     }
 }

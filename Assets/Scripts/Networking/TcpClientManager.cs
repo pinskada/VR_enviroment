@@ -333,13 +333,19 @@ public class TcpClientManager : MonoBehaviour
                     
                     break;
                 case "distance":
-                    UnityEngine.Debug.Log($"Distance: {data}");
+                    //UnityEngine.Debug.Log($"Distance: {data}");
                     break;
                 case "control":
-                    UnityEngine.Debug.Log($"Control signal: {data}");
+                    //UnityEngine.Debug.Log($"Control signal: {data}");
                     break;
                 case "STATUS":
-                    UnityEngine.Debug.Log($"Status: {data}");
+                    //UnityEngine.Debug.Log($"Status: {data}");
+                    break;
+                case "FAILURE":
+                    //UnityEngine.Debug.Log($"Failure: {data}");
+                    break;
+                case "imageInfo":
+                    //UnityEngine.Debug.Log($"Image info: {data}");
                     break;
                 default:
                     UnityEngine.Debug.LogWarning($"Unknown message type: {type}");
