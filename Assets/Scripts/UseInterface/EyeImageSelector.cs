@@ -12,15 +12,12 @@ public class EyeImageSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     private Vector2 startMousePos;
     private Vector2 endMousePos;
     private bool isSelecting = false;
-
+    private bool isCroped = false; // Flag to check if the image is cropped
     [SerializeField] private GuiHub guiHub; // Padding around the selection box
 
     [SerializeField] private string eyeSide;
 
     // Normalized coordinates (0-1) of the selected area (min/max)
-    private Vector2 normalizedX;
-    private Vector2 normalizedY;
-    private float normalizedCoordinates;
 
     void Start()
     {
@@ -107,15 +104,20 @@ public class EyeImageSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     }
 
     // Optional: Helper to get crop area in relative format
-    private void sendCrop(List<List<float>> normalizedCoordinates)
+    private void sendCrop(List<List<float>> normalizedCoordinates, bool force = false)
     {
-
+        if (isCroped) // Check if crop is already applied
+            return; // If crop is already applied, do not send again
         if (eyeSide == "Left")
             guiHub.SendConfig("tracker_config crop_left", normalizedCoordinates);
         else if (eyeSide == "Right")
             guiHub.SendConfig("tracker_config crop_right", normalizedCoordinates);
         else
             UnityEngine.Debug.LogError($"Wrong side assigned to ImageSelector: {eyeSide}");
+        
+        if (force == false) // If force is true, send the crop even if it is already applied
+            isCroped = true; // Set the flag to true when crop is applied
+      
     }
 
     public void resetScale(){
@@ -136,8 +138,8 @@ public class EyeImageSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         }
         else
             UnityEngine.Debug.LogError($"Wrong side assigned to ImageSelector: {eyeSide}");
-        
-        sendCrop(normalizedCoordinates);
+        isCroped = false; // Reset the flag when crop is removed
+        sendCrop(normalizedCoordinates, true);
     }
 
     float RoundToThreeDecimals(float value){
