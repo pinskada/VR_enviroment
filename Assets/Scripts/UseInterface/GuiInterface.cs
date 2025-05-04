@@ -3,22 +3,26 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
-public class DropDownScript : MonoBehaviour
+public class GuiInterface : MonoBehaviour
 {
-    [SerializeField] private UIMessageSender uiMessageSender;
+    [SerializeField] private GuiHub guiHub;
 
     public void SendTrackerModeFromDropdown(int index)
+
     {
         switch (index)
         {
             case 0:
-                uiMessageSender.SendTrackerMode("launch_tracker");
+                guiHub.SendTrackerMode("launch_tracker");
                 break;
             case 1:
-                uiMessageSender.SendTrackerMode("setup_tracker_1");
+                guiHub.SendTrackerMode("setup_tracker_1");
                 break;
             case 2:
-                uiMessageSender.SendTrackerMode("setup_tracker_2");
+                guiHub.SendTrackerMode("setup_tracker_2");
+                break;
+            case 3:
+                guiHub.SendTrackerMode("stop_preview");
                 break;
             default:
                 Debug.LogError("Invalid dropdown index: " + index);

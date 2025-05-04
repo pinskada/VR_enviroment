@@ -2,11 +2,19 @@ using UnityEngine;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine.UI;
-public class UIMessageSender : MonoBehaviour
+using Newtonsoft.Json.Linq;
+using System;
+
+public class GuiHub : MonoBehaviour
 {
+    [SerializeField] private GuiRenderer guiRenderer;
     private TcpClientManager tcpClientManager;
+
+    public static event Action OnGuiReady;
+
     void Awake()
     {
+        OnGuiReady?.Invoke();
         tcpClientManager = FindFirstObjectByType<TcpClientManager>();
         if (tcpClientManager == null)
         {
@@ -53,16 +61,21 @@ public class UIMessageSender : MonoBehaviour
         SendMessage(message);
     }
 
-    public void SendConfig(string action)
+    public void SendConfig(string action, object parameters)
     {
         var message = new Dictionary<string, object>
         {
             { "category", "config" },
-            { "action", action }
+            { "action", action },
+            { "params", parameters}
         };
 
         SendMessage(message);
     }
 
+    public void updateEyeSide(string newEyeSide)
+    {
+        guiRenderer.UpdateEyeSide(newEyeSide);
+    }
 
 }

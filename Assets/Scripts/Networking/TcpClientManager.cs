@@ -17,15 +17,17 @@ using Newtonsoft.Json.Linq;
 public class TcpClientManager : MonoBehaviour
 {
     
-    public string raspberryPiIP = "192.168.2.2";
-    public int port = 65432;
-
+    [SerializeField] private string raspberryPiIP = "192.168.2.2";
+    [SerializeField] private int port = 65432;
     private TcpClient client;
-    public Madgwick9DOFHandler madgwickHandler;
+    public Madgwick9DOFHandler madgwickHandler; 
+    private GuiRenderer guiRenderer; // Reference to the GuiRenderer script
+    private GuiHub guiHub; // Reference to the GuiHub script
     private NetworkStream stream;
     private Thread receiveThread;
     private bool isConnected = false;
     private volatile bool isShuttingDown = false;
+    private MemoryStream incomingStream = new MemoryStream();
 
     void Start()
     {
@@ -40,13 +42,6 @@ public class TcpClientManager : MonoBehaviour
 
         UnityEngine.Debug.Log("Attempting to connect to server...");
         ConnectToServer(); // Connect to the RPI TCP server
-
-        //SendMessageToPi("launch_eyeloop"); // Send a message to the RPI to launch the eyeloop program
-    }
-
-    void Update()
-    {
-        
     }
 
     void OnApplicationQuit()
@@ -54,6 +49,17 @@ public class TcpClientManager : MonoBehaviour
         isShuttingDown = true; // Set the flag to true to prevent errors during shutdown
         Disconnect(); // Disconnect from the server when the application quits
         ResetToDHCP(); // Reset the IP to DHCP
+    }
+
+    void OnEnable()
+    {
+        GuiRenderer.OnGuiReady += InitGuiReference;
+    }
+
+    void InitGuiReference()
+    {
+        guiRenderer = FindFirstObjectByType<GuiRenderer>();
+        guiHub = FindFirstObjectByType<GuiHub>();
     }
 
     public static void SetStaticIP()
@@ -217,10 +223,6 @@ public class TcpClientManager : MonoBehaviour
 
         Disconnect();
     }
-
-
-    private MemoryStream incomingStream = new MemoryStream();
-
     private void HandleIncomingData(byte[] data, int length)
     {
         // Write new incoming bytes
@@ -264,16 +266,15 @@ public class TcpClientManager : MonoBehaviour
             switch (packetType)
             {
                 case 'J':
-                    string json = Encoding.UTF8.GetString(payload);
+                    string json = Encoding.UTF8.GetString(payload);      
+                    //UnityEngine.Debug.Log("Incoming JSON");
+
                     HandleJson(json);
                     break;
 
-                case 'G':
-                    HandleBinary(payload, "jpeg");
-                    break;
-
-                case 'P':
-                    HandleBinary(payload, "png");
+                case 'G' or 'P':
+                    //UnityEngine.Debug.Log("Incoming JPEG or PNG");
+                    guiRenderer.OnImageReceived(payload);
                     break;
 
                 default:
@@ -299,16 +300,15 @@ public class TcpClientManager : MonoBehaviour
 
     private void HandleJson(string json)
     {
+
+        JToken gyroData;
+        string eyeSideData;
+
         try
         {
             JObject message = JObject.Parse(json);
 
             string type = message["type"]?.ToString();
-            JToken data = message["data"];
-
-            //UnityEngine.Debug.Log($"Received JSON Message:");
-            //UnityEngine.Debug.Log($"  Type: {type}");
-            //UnityEngine.Debug.Log($"  Data: {data.ToString()}");
 
             // Optionally: special handling based on type
             switch (type)
@@ -318,13 +318,9 @@ public class TcpClientManager : MonoBehaviour
                      
                     if (madgwickHandler != null)
                     {
-                        //UnityEngine.Debug.Log($"Data: {data}");
-                        // Extract gyro, accel, mag from JSON
-                        Vector3 gyro = ParseVector3(data["gyro"]);
-                        Vector3 accel = ParseVector3(data["accel"]);
-                        Vector3 mag = ParseVector3(data["mag"]);
-
-                        madgwickHandler.Update9DOF(gyro, accel, mag);
+                        gyroData= message["data"];
+                        // Parse the JSON data and update the Madgwick filter
+                        madgwickHandler.Update9DOF(gyroData);
                     }
                     else
                     {
@@ -345,7 +341,8 @@ public class TcpClientManager : MonoBehaviour
                     //UnityEngine.Debug.Log($"Failure: {data}");
                     break;
                 case "imageInfo":
-                    //UnityEngine.Debug.Log($"Image info: {data}");
+                    eyeSideData = message["data"].ToString();
+                    guiHub.updateEyeSide(eyeSideData);
                     break;
                 default:
                     UnityEngine.Debug.LogWarning($"Unknown message type: {type}");
@@ -356,21 +353,6 @@ public class TcpClientManager : MonoBehaviour
         {
             UnityEngine.Debug.LogError($"Failed to parse JSON: {ex.Message}");
         }
-    }
-
-    private void HandleBinary(byte[] data, string format)
-    {
-        UnityEngine.Debug.Log($"Received binary data ({format}) ({data.Length} bytes)");
-        // TODO: Load into a Texture2D, save to disk, etc.
-    }
-
-    private Vector3 ParseVector3(Newtonsoft.Json.Linq.JToken token)
-    {
-        return new Vector3(
-            token["x"]?.ToObject<float>() ?? 0f,
-            token["y"]?.ToObject<float>() ?? 0f,
-            token["z"]?.ToObject<float>() ?? 0f
-        );
     }
 
     public void Disconnect()

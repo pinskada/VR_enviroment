@@ -1,4 +1,5 @@
 using UnityEngine;
+using Newtonsoft.Json.Linq;
 
 public class Madgwick9DOFHandler : MonoBehaviour
 {
@@ -69,8 +70,13 @@ public class Madgwick9DOFHandler : MonoBehaviour
         }
     }
 
-    public void Update9DOF(Vector3 gyroDegPerSec, Vector3 accelRaw, Vector3 magRaw)
+    public void Update9DOF(JToken data)
     {
+
+        Vector3 gyroDegPerSec = ParseVector3(data["gyro"]);
+        Vector3 accelRaw = ParseVector3(data["accel"]);
+        Vector3 magRaw = ParseVector3(data["mag"]);
+
         double currentTime = (double)System.Diagnostics.Stopwatch.GetTimestamp() / System.Diagnostics.Stopwatch.Frequency;   
 
         if (lastPacketTime != 0f)
@@ -110,6 +116,16 @@ public class Madgwick9DOFHandler : MonoBehaviour
     private Quaternion ConvertSensorToUnity(Quaternion q)
     {
         // Final correct mapping: fixes roll, yaw, pitch
-        return new Quaternion(q.x, q.y, q.z, -q.w);
+        return new Quaternion(q.x, q.y, -q.z, -q.w);
     }
+
+    private Vector3 ParseVector3(Newtonsoft.Json.Linq.JToken token)
+    {
+        return new Vector3(
+            token["x"]?.ToObject<float>() ?? 0f,
+            token["y"]?.ToObject<float>() ?? 0f,
+            token["z"]?.ToObject<float>() ?? 0f
+        );
+    }
+
 }
