@@ -18,10 +18,12 @@ public class GuiRenderer : MonoBehaviour
     [SerializeField] private UnityEngine.UI.AspectRatioFitter leftEyeAspectFitter;
     [SerializeField] private UnityEngine.UI.AspectRatioFitter rightEyeAspectFitter;
 
-
+    [SerializeField] private EyeImageSelector leftEyeImageSelector;
+    [SerializeField] private EyeImageSelector rightEyeImageSelector;
     private string newEyeSide = "none";
     private bool running = true;
 
+    private string dataType = "JPEG";
     public static event Action OnGuiReady;
 
     void Awake()
@@ -46,13 +48,9 @@ public class GuiRenderer : MonoBehaviour
 
     public void UpdateEyeSide(string side)
     {
-        if (side == "left_JPEG")
+        if (side == "Left" || side == "Right")
         {
-            newEyeSide = "left";
-        }
-        else if (side == "right_JPEG")
-        {
-            newEyeSide = "right";
+            newEyeSide = side;
         }
         else
         {
@@ -60,8 +58,9 @@ public class GuiRenderer : MonoBehaviour
         }
     }
 
-    public void OnImageReceived(byte[] imageData)
+    public void OnImageReceived(byte[] imageData, string dataType)
     {
+        this.dataType = dataType;
         try
         {
             lock (decodeQueue)
@@ -96,9 +95,33 @@ public class GuiRenderer : MonoBehaviour
                 // DECODE using StbImageSharp
                 var result = ImageResult.FromMemory(imageData, ColorComponents.RedGreenBlueAlpha);
                 
-                // Copy raw RGBA bytes to new array (optional but safer)
-                byte[] rawImageData = new byte[result.Data.Length];
-                Array.Copy(result.Data, rawImageData, result.Data.Length);
+                byte[] rawImageData;
+
+                if (dataType == "JPEG")
+                {
+                    leftEyeImageSelector.SetRotation(true);
+                    rightEyeImageSelector.SetRotation(true);
+                    // Rotate the image 90 degrees clockwise
+                    rawImageData = Rotate90Right(result.Data, result.Width, result.Height);
+                    // Swap width and height after rotation
+                    int temp = result.Width;
+                    result.Width = result.Height;
+                    result.Height = temp;
+                }
+                else if (dataType == "PNG")
+                {
+                    // No rotation needed for PNG or JPEG
+                    // Just copy the raw image data
+                    
+                    leftEyeImageSelector.SetRotation(false);
+                    rightEyeImageSelector.SetRotation(false);
+                    rawImageData = FlipVertical(result.Data, result.Width, result.Height);
+                }
+                else
+                {
+                    UnityEngine.Debug.LogError("Unsupported image type: " + dataType);
+                    return;
+                }
 
                 // Send to main thread (via ConcurrentQueue or dispatcher)
                 lock (mainThreadQueue)
@@ -122,13 +145,13 @@ public class GuiRenderer : MonoBehaviour
                 tex.Apply();
                 string eyeSide = image.eyeSide;
 
-                if (eyeSide == "left" && leftEyeImage != null)
+                if (eyeSide == "Left" && leftEyeImage != null)
                 {
                     leftEyeImage.texture = tex;
                     float aspect = (float)tex.width / tex.height;
                     leftEyeAspectFitter.aspectRatio = aspect;
                 }   
-                else if (eyeSide == "right" && rightEyeImage != null)
+                else if (eyeSide == "Right" && rightEyeImage != null)
                 {
                     rightEyeImage.texture = tex;
                     float aspect = (float)tex.width / tex.height;
@@ -137,4 +160,45 @@ public class GuiRenderer : MonoBehaviour
             }
         }
     }
+
+    private byte[] Rotate90Right(byte[] rawData, int width, int height)
+    {
+        byte[] rotated = new byte[rawData.Length];
+        int bytesPerPixel = 4; // RGBA
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int srcIndex = (y * width + x) * bytesPerPixel;
+
+                // Correct clockwise rotation mapping
+                int newX = y;
+                int newY = width - x - 1;
+
+                int destIndex = (newY * height + newX) * bytesPerPixel;
+
+                Array.Copy(rawData, srcIndex, rotated, destIndex, bytesPerPixel);
+            }
+        }
+
+        return rotated;
+    }
+
+    private byte[] FlipVertical(byte[] rawData, int width, int height)
+    {
+        byte[] flipped = new byte[rawData.Length];
+        int bytesPerPixel = 4;
+
+        for (int y = 0; y < height; y++)
+        {
+            int srcRow = y * width * bytesPerPixel;
+            int destRow = (height - y - 1) * width * bytesPerPixel;
+
+            Array.Copy(rawData, srcRow, flipped, destRow, width * bytesPerPixel);
+        }
+
+        return flipped;
+    }
+
 }

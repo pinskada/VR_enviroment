@@ -268,15 +268,16 @@ public class TcpClientManager : MonoBehaviour
                 case 'J':
                     string json = Encoding.UTF8.GetString(payload);      
                     //UnityEngine.Debug.Log("Incoming JSON");
-
                     HandleJson(json);
                     break;
-
-                case 'G' or 'P':
-                    //UnityEngine.Debug.Log("Incoming JPEG or PNG");
-                    guiRenderer.OnImageReceived(payload);
+                case 'G':
+                    //UnityEngine.Debug.Log("Incoming JPEG image");
+                    guiRenderer.OnImageReceived(payload, "JPEG");
                     break;
-
+                case 'P':
+                    //UnityEngine.Debug.Log("Incoming PNG image");
+                    guiRenderer.OnImageReceived(payload, "PNG");
+                    break;
                 default:
                     UnityEngine.Debug.LogWarning($"Unknown packet type: {packetType}");
                     break;
