@@ -81,33 +81,26 @@ public class EyeImageSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         Vector2 min = new Vector2(Mathf.Min(startMousePos.x, endMousePos.x), Mathf.Min(startMousePos.y, endMousePos.y));
         Vector2 max = new Vector2(Mathf.Max(startMousePos.x, endMousePos.x), Mathf.Max(startMousePos.y, endMousePos.y));
 
-        if (isRotatedRight) // If the image is rotated right, swap the x and y coordinates
-        {
-            UnityEngine.Debug.Log("Image is rotated right, swapping coordinates.");
-            Vector2 tempMin = min;
-            Vector2 tempMax = max;
+        Vector2 tempMin = min;
+        Vector2 tempMax = max;
 
-            min.x = tempMin.y;
-            max.x = tempMax.y;
-
-            min.y = tempMin.x;
-            max.y = tempMax.x;
-        }
+        min.y = 1 - tempMax.y;
+        max.y = 1 - tempMin.y;
 
         List<List<float>> normalizedCoordinates = new List<List<float>>();
 
         if (eyeSide == "Left"){
             normalizedCoordinates = new List<List<float>>
             {
-                new List<float>() { RoundToThreeDecimals((min.y + imgSize.y / 2) / imgSize.y / 2), RoundToThreeDecimals((max.y + imgSize.y / 2) / imgSize.y) / 2},
-                new List<float>() { RoundToThreeDecimals((min.x + imgSize.x / 2) / imgSize.x), RoundToThreeDecimals((max.x + imgSize.x / 2) / imgSize.x)}
+                new List<float>() { RoundToThreeDecimals((min.y + imgSize.y / 2) / imgSize.y), RoundToThreeDecimals((max.y + imgSize.y / 2) / imgSize.y)},
+                new List<float>() { RoundToThreeDecimals((min.x + imgSize.x / 2) / imgSize.x / 2), RoundToThreeDecimals((max.x + imgSize.x / 2) / imgSize.x) / 2}
             };
         }
         else if (eyeSide == "Right"){
             normalizedCoordinates = new List<List<float>>
             {
-                new List<float>() { RoundToThreeDecimals((min.y + imgSize.y / 2) / imgSize.y / 2 + 0.5f), RoundToThreeDecimals((max.y + imgSize.y / 2) / imgSize.y) / 2 + 0.5f},
-                new List<float>() { RoundToThreeDecimals((min.x + imgSize.x / 2) / imgSize.x), RoundToThreeDecimals((max.x + imgSize.x / 2) / imgSize.x)}
+                new List<float>() { RoundToThreeDecimals((min.y + imgSize.y / 2) / imgSize.y), RoundToThreeDecimals((max.y + imgSize.y / 2) / imgSize.y)},
+                new List<float>() { RoundToThreeDecimals((min.x + imgSize.x / 2) / imgSize.x / 2 + 0.5f), RoundToThreeDecimals((max.x + imgSize.x / 2) / imgSize.x) / 2 + 0.5f}
             };
         }
         else
@@ -138,15 +131,15 @@ public class EyeImageSelector : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         if (eyeSide == "Left"){
             normalizedCoordinates = new List<List<float>>
         {
-            new List<float>() {0f, 0.5f},
-            new List<float>() {0f, 1f}
+            new List<float>() {0f, 1f},
+            new List<float>() {0f, 0.5f}
         };
         }
         else if (eyeSide == "Right"){
             normalizedCoordinates = new List<List<float>>
             {
-                new List<float>() {0.5f, 1f},
-                new List<float>() {0, 1f}
+                new List<float>() {0f, 1f},
+                new List<float>() {0.5f, 1f}
             };
         }
         else

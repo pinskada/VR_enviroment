@@ -97,31 +97,9 @@ public class GuiRenderer : MonoBehaviour
                 
                 byte[] rawImageData;
 
-                if (dataType == "JPEG")
-                {
-                    leftEyeImageSelector.SetRotation(true);
-                    rightEyeImageSelector.SetRotation(true);
-                    // Rotate the image 90 degrees clockwise
-                    rawImageData = Rotate90Right(result.Data, result.Width, result.Height);
-                    // Swap width and height after rotation
-                    int temp = result.Width;
-                    result.Width = result.Height;
-                    result.Height = temp;
-                }
-                else if (dataType == "PNG")
-                {
-                    // No rotation needed for PNG or JPEG
-                    // Just copy the raw image data
-                    
-                    leftEyeImageSelector.SetRotation(false);
-                    rightEyeImageSelector.SetRotation(false);
-                    rawImageData = FlipVertical(result.Data, result.Width, result.Height);
-                }
-                else
-                {
-                    UnityEngine.Debug.LogError("Unsupported image type: " + dataType);
-                    return;
-                }
+                leftEyeImageSelector.SetRotation(false);
+                rightEyeImageSelector.SetRotation(false);
+                rawImageData = FlipVertical(result.Data, result.Width, result.Height);
 
                 // Send to main thread (via ConcurrentQueue or dispatcher)
                 lock (mainThreadQueue)

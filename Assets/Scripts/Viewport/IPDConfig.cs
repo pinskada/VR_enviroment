@@ -7,5 +7,13 @@ using UnityEngine;
 public class IPDConfig : ScriptableObject
 {
     [Range(50f, 75f)]
-    public float interpupillaryDistance = 63f; // Default IPD in mm
+    public float interpupillaryDistance = 68f; // Default IPD in mm
+    void OnEnable()
+    {
+        StereoRigHub.InvokeReadyIPD(this);
+    }
+    public void setIPD(float ipd)
+    {
+        interpupillaryDistance = ipd;
+    }
 }
