@@ -38,7 +38,7 @@ public class TcpClientManager : MonoBehaviour
     {
 
         SetStaticIP(); // Set static IP to communicate with the RPI on a local network.
-        yield return new WaitForSeconds(3f); // Wait for a few seconds to ensure the IP is set
+        yield return new WaitForSeconds(0.5f); // Wait for a few seconds to ensure the IP is set
 
         UnityEngine.Debug.Log("Attempting to connect to server...");
         ConnectToServer(); // Connect to the RPI TCP server
@@ -163,6 +163,8 @@ public class TcpClientManager : MonoBehaviour
             receiveThread = new Thread(ReceiveData);
             receiveThread.IsBackground = true;
             receiveThread.Start();
+            
+            guiHub.sendConfigToRpi(); // Send initial configuration to the RPI
 
             UnityEngine.Debug.Log("Connected to Raspberry Pi.");
         }
@@ -196,7 +198,6 @@ public class TcpClientManager : MonoBehaviour
     private void ReceiveData()
     {
         // This method receives data from the RPI TCP server.
-
 
         // Buffer for incoming data
         byte[] buffer = new byte[1024];

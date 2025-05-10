@@ -9,12 +9,10 @@ public class Madgwick9DOFHandler : MonoBehaviour
     [Header("Filter Settings")]
     public float sampleFreq = 100.0f; // Hz
     public float beta = 0.007f;        // Madgwick filter beta gain
-
     private Vector3 latestGyro;
     private Vector3 latestAccel;
     private Vector3 latestMag;
     private bool hasNewData = false;
-
     private MadgwickAHRS madgwick;
     private Quaternion initialRotation; 
     private bool resetRequested = false;

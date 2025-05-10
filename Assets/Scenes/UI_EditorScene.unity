@@ -530,7 +530,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Minimum track raduius:'
+  m_text: 'Minimum track radius:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1438,7 +1438,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Maximum track raduius:'
+  m_text: 'Maximum track radius:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2399,7 +2399,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &209150272
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2426,7 +2426,7 @@ RectTransform:
   m_AnchorMin: {x: 0.532, y: 0}
   m_AnchorMax: {x: 1, y: 0.7937064}
   m_AnchoredPosition: {x: -0.9069824, y: 12.685974}
-  m_SizeDelta: {x: 1.8139992, y: 0}
+  m_SizeDelta: {x: 1.8139992, y: 34.915783}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &209150273
 MonoBehaviour:
@@ -3015,7 +3015,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Minimum track raduius:'
+  m_text: 'Minimum track radius:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3824,7 +3824,7 @@ RectTransform:
   m_AnchorMin: {x: 0.532, y: 0}
   m_AnchorMax: {x: 1, y: 0.7937064}
   m_AnchoredPosition: {x: -0.9069824, y: 12.685974}
-  m_SizeDelta: {x: 1.8139992, y: 34.162254}
+  m_SizeDelta: {x: 1.8139992, y: 36.46405}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &324985264
 MonoBehaviour:
@@ -5164,7 +5164,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.2
+  m_fontSize: 27.2
   m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7606,7 +7606,7 @@ RectTransform:
   m_AnchorMin: {x: 0.532, y: 0}
   m_AnchorMax: {x: 1, y: 0.7937064}
   m_AnchoredPosition: {x: -0.90722656, y: 12.685974}
-  m_SizeDelta: {x: 1.8139992, y: 34.162254}
+  m_SizeDelta: {x: 1.8139992, y: 34.915783}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &776696483
 MonoBehaviour:
@@ -10972,7 +10972,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "20\u200B"
+  m_text: "10\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13170,7 +13170,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Maximum track raduius:'
+  m_text: 'Maximum track radius:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -15967,7 +15967,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1567144696
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16007,7 +16007,7 @@ RectTransform:
   m_AnchorMin: {x: 0.532, y: 0}
   m_AnchorMax: {x: 1, y: 0.777}
   m_AnchoredPosition: {x: -0.9071045, y: 20.844}
-  m_SizeDelta: {x: 1.8138, y: 52.51799}
+  m_SizeDelta: {x: 1.8138, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1567144697
 MonoBehaviour:
@@ -17980,7 +17980,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 3.293071
+  m_AspectRatio: 3.3086574
 --- !u!1 &1814567800
 GameObject:
   m_ObjectHideFlags: 0
@@ -18822,7 +18822,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 20
+  m_Text: 10
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -19292,6 +19292,7 @@ GameObject:
   - component: {fileID: 1988687292}
   - component: {fileID: 1988687290}
   - component: {fileID: 1988687293}
+  - component: {fileID: 1988687294}
   m_Layer: 0
   m_Name: GuiLogic
   m_TagString: Untagged
@@ -19311,11 +19312,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 057f63a4e80b04a4aa1aa6511998ad65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  widthField: {fileID: 1284067213}
+  heightField: {fileID: 1562579462}
+  focusField: {fileID: 973179072}
+  expTimeField: {fileID: 1327644935}
+  gainField: {fileID: 86714063}
+  jpegQualField: {fileID: 1273042936}
+  prewFpsField: {fileID: 544431303}
+  leftMinTrackRField: {fileID: 2123175541}
+  leftMaxTrackRField: {fileID: 1458926881}
+  leftSrchStepField: {fileID: 1918480932}
+  rightMinTrackRField: {fileID: 1696782904}
+  rightMaxTrackRField: {fileID: 2057794132}
+  rightSrchStepField: {fileID: 866110671}
+  alphaValField: {fileID: 407905182}
+  bufferCropFacField: {fileID: 1455742089}
+  dataStdThrField: {fileID: 1179217535}
+  gyroThrField: {fileID: 1179217535}
+  camIPDField: {fileID: 1398705959}
+  dispWidthField: {fileID: 700179316}
+  dispHeightField: {fileID: 2116218652}
+  eyeToScreenField: {fileID: 586490801}
   guiHub: {fileID: 1988687292}
   cameraPreviewPanel: {fileID: 324985262}
   trackerPreviewPanel: {fileID: 1567144695}
   gazeProcPanel: {fileID: 776696481}
   displayPanel: {fileID: 209150271}
+  guiSettingsManager: {fileID: 1988687294}
 --- !u!4 &1988687291
 Transform:
   m_ObjectHideFlags: 0
@@ -19343,6 +19366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730a195be4b1f3048b6bb640d69faeb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guiInterface: {fileID: 1988687290}
   guiRenderer: {fileID: 1988687293}
 --- !u!114 &1988687293
 MonoBehaviour:
@@ -19362,6 +19386,18 @@ MonoBehaviour:
   rightEyeAspectFitter: {fileID: 358633553}
   leftEyeImageSelector: {fileID: 834441422}
   rightEyeImageSelector: {fileID: 358633556}
+--- !u!114 &1988687294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988687289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea4463c661db07344bff69ace90d1a00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1989886684
 GameObject:
   m_ObjectHideFlags: 0

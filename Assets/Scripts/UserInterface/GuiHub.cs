@@ -7,6 +7,7 @@ using System;
 
 public class GuiHub : MonoBehaviour
 {
+    [SerializeField] private GuiInterface guiInterface;
     [SerializeField] private GuiRenderer guiRenderer;
     private TcpClientManager tcpClientManager;
     public static event Action OnGuiReady;
@@ -22,7 +23,9 @@ public class GuiHub : MonoBehaviour
         }
     }
    
-
+    public void sendConfigToRpi(){
+        guiInterface.ApplySettingsToRPI();
+    }
     void OnEnable()
     {
         StereoRigHub.OnStereoRigReady += OnStereoReady;
@@ -99,6 +102,7 @@ public class GuiHub : MonoBehaviour
             { "params", parameters}
         };
 
+        UnityEngine.Debug.Log("Sending config message: " + JsonConvert.SerializeObject(message));
         SendMessage(message);
     }
 
