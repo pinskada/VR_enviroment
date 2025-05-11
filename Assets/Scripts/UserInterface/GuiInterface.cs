@@ -179,6 +179,27 @@ public class GuiInterface : MonoBehaviour
 
     }
 
+    public void loadCalibScene(){
+        VRSceneManager.Instance.SwitchVRScene("CalibScene");
+    }
+
+    public void loadScene1(){
+        VRSceneManager.Instance.SwitchVRScene("SampleScene");
+    }
+
+    public void loadScene2(){
+
+    }
+
+    public void loadScene3(){
+
+    }
+
+    public void quitGame(){
+        guiHub.dissconect();
+        Application.Quit();
+    }
+
     // CAMERA SETTINGS=========================================================
     public void resWidth(string input)
     {

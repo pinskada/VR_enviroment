@@ -32,7 +32,7 @@ public class GUISettings
     public string camIPD = "63";
     public string dispWidth = "120";
     public string dispHeight = "68";
-    public string eyeToScreen = "0.05";
+    public string eyeToScreen = "50";
 }
 
 public class GUISettingsManager : MonoBehaviour

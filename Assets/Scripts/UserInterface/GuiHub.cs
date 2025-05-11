@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using UnityEngine.UI;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 
 public class GuiHub : MonoBehaviour
 {
@@ -15,12 +16,32 @@ public class GuiHub : MonoBehaviour
     private StereoCameraProjection stereoCameraProjection;
     void Awake()
     {
-        OnGuiReady?.Invoke();
-        tcpClientManager = FindFirstObjectByType<TcpClientManager>();
-        if (tcpClientManager == null)
+        OnGuiReady?.Invoke(); // Let other systems know GUI is ready
+    }
+
+    void Start()
+    {
+        StartCoroutine(WaitForTcpManager());
+    }
+
+    private IEnumerator WaitForTcpManager()
+    {
+        float timeout = 5f;
+        float elapsed = 0f;
+
+        while (tcpClientManager == null && elapsed < timeout)
         {
-            Debug.LogError("TcpClientManager not found in scene!");
+            tcpClientManager = FindFirstObjectByType<TcpClientManager>();
+            if (tcpClientManager != null) break;
+
+            yield return new WaitForSeconds(0.1f);
+            elapsed += 0.1f;
         }
+
+        if (tcpClientManager == null)
+            UnityEngine.Debug.LogError("TcpClientManager still not found after timeout!");
+        else
+            UnityEngine.Debug.Log("TcpClientManager linked successfully.");
     }
    
     public void sendConfigToRpi(){
@@ -104,6 +125,10 @@ public class GuiHub : MonoBehaviour
 
         UnityEngine.Debug.Log("Sending config message: " + JsonConvert.SerializeObject(message));
         SendMessage(message);
+    }
+
+    public void dissconect(){
+        tcpClientManager.Disconnect();
     }
 
     public void updateEyeSide(string newEyeSide)

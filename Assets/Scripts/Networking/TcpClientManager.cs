@@ -32,13 +32,28 @@ public class TcpClientManager : MonoBehaviour
     void Start()
     {
         StartCoroutine(StartupSequence());
+
+        // Wait a frame to ensure GUI scene loaded
+        StartCoroutine(FindGuiReferences());
     }
+
+    private IEnumerator FindGuiReferences()
+    {
+        yield return new WaitForSeconds(0.5f); // delay for GUI scene load
+
+        guiRenderer = FindFirstObjectByType<GuiRenderer>();
+        guiHub = FindFirstObjectByType<GuiHub>();
+
+        if (guiRenderer == null) UnityEngine.Debug.LogError("GuiRenderer not found!");
+        if (guiHub == null) UnityEngine.Debug.LogError("GuiHub not found!");
+    }
+
 
     IEnumerator StartupSequence()
     {
 
         SetStaticIP(); // Set static IP to communicate with the RPI on a local network.
-        yield return new WaitForSeconds(0.5f); // Wait for a few seconds to ensure the IP is set
+        yield return new WaitForSeconds(5f); // Wait for a few seconds to ensure the IP is set
 
         UnityEngine.Debug.Log("Attempting to connect to server...");
         ConnectToServer(); // Connect to the RPI TCP server
@@ -49,17 +64,6 @@ public class TcpClientManager : MonoBehaviour
         isShuttingDown = true; // Set the flag to true to prevent errors during shutdown
         Disconnect(); // Disconnect from the server when the application quits
         ResetToDHCP(); // Reset the IP to DHCP
-    }
-
-    void OnEnable()
-    {
-        GuiRenderer.OnGuiReady += InitGuiReference;
-    }
-
-    void InitGuiReference()
-    {
-        guiRenderer = FindFirstObjectByType<GuiRenderer>();
-        guiHub = FindFirstObjectByType<GuiHub>();
     }
 
     public static void SetStaticIP()
@@ -148,7 +152,8 @@ public class TcpClientManager : MonoBehaviour
     public void ConnectToServer()
     {
         // This method connects to the RPI TCP server.
-    
+        //Disconnect(); // Clean up any previous state
+
         try
         {
             // Create a new TcpClient and connect to the server
@@ -222,7 +227,7 @@ public class TcpClientManager : MonoBehaviour
                 UnityEngine.Debug.LogError("Receive error: " + e.Message);
         }
 
-        Disconnect();
+        //Disconnect();
     }
     private void HandleIncomingData(byte[] data, int length)
     {
@@ -359,17 +364,31 @@ public class TcpClientManager : MonoBehaviour
 
     public void Disconnect()
     {
-        // This method disconnects from the RPI TCP server.
-
-
-        // Check if the client is connected and the stream is not null
         if (!isConnected) return;
-
-        // Close the stream and client, and set the isConnected flag to false
         isConnected = false;
-        receiveThread?.Abort();
-        stream?.Close();
-        client?.Close();
+
+        try
+        {
+            stream?.Close();
+            stream?.Dispose();
+        }
+        catch (Exception e) { UnityEngine.Debug.LogWarning("Stream close failed: " + e.Message); }
+
+        try
+        {
+            client?.Close();
+            client?.Dispose();
+        }
+        catch (Exception e) { UnityEngine.Debug.LogWarning("Client close failed: " + e.Message); }
+
+        if (receiveThread != null && receiveThread.IsAlive)
+        {
+            receiveThread.Join(500); // Allow thread to exit cleanly
+        }
+
+        receiveThread = null;
+        stream = null;
+        client = null;
 
         UnityEngine.Debug.Log("Disconnected from RPI.");
     }
