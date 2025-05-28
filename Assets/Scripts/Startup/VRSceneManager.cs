@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic;
 
 public class VRSceneManager : MonoBehaviour
 {
     public static VRSceneManager Instance;
     private string currentVRScene;
+    public List<string> availableScenes = new() { "SampleScene"};
+    private int currentSceneIndex = 0;
+    private string previousSceneBeforeCalibration = null;
 
     void Awake()
     {
@@ -22,6 +26,11 @@ public class VRSceneManager : MonoBehaviour
 
     public void SwitchVRScene(string newScene)
     {
+        if (newScene == currentVRScene)
+        {
+            Debug.Log($"Scene '{newScene}' already active. Skipping load.");
+            return;
+        }
         StartCoroutine(SwitchRoutine(newScene));
     }
 
@@ -37,4 +46,35 @@ public class VRSceneManager : MonoBehaviour
     {
         currentVRScene = sceneName;
     }
+
+    public void GoToCalibration()
+    {
+        previousSceneBeforeCalibration = availableScenes[currentSceneIndex];
+        SwitchVRScene("CalibScene");
+    }
+
+    public void NextScene()
+    {
+        if (currentVRScene == "CalibScene")
+        {
+            SwitchVRScene(previousSceneBeforeCalibration ?? availableScenes[0]);
+            return;
+        }
+
+        currentSceneIndex = (currentSceneIndex + 1) % availableScenes.Count;
+        SwitchVRScene(availableScenes[currentSceneIndex]);
+    }
+
+    public void PreviousScene()
+    {
+        if (currentVRScene == "CalibScene")
+        {
+            SwitchVRScene(previousSceneBeforeCalibration ?? availableScenes[0]);
+            return;
+        }
+
+        currentSceneIndex = (currentSceneIndex - 1 + availableScenes.Count) % availableScenes.Count;
+        SwitchVRScene(availableScenes[currentSceneIndex]);
+    }
+
 }

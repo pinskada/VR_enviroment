@@ -2,12 +2,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using TMPro;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 public class CalibrationController : MonoBehaviour
 {
     public TextMeshProUGUI instructionText;
     public GameObject targetPrefab;
     public Transform cameraOrigin;
+    public TcpClientManager tcpClient; // Reference to your working TCP client
     public float[] distances = { 0.5f, 0.7f, 1.0f, 1.3f, 1.5f }; // meters
     public float targetDuration = 3f; // seconds
     //public TCPClient tcpClient; // Reference to your working TCP client
@@ -17,7 +20,12 @@ public class CalibrationController : MonoBehaviour
     void Start()
     {
         instructionText.text = "Calibration starting.\nPlease look at the targets as they appear.\nPress SPACE to begin.";
-        SendTCPMessage("{\"type\":\"calib_prepare\"}");
+        var message = new Dictionary<string, object>
+        {
+            { "category", "calibration" },
+            { "action", "start_calibration" }
+        };
+        SendTCPMessage(message);
     }
 
     void Update()
@@ -38,25 +46,33 @@ public class CalibrationController : MonoBehaviour
             Vector3 targetPosition = cameraOrigin.position + cameraOrigin.forward * d;
             GameObject target = Instantiate(targetPrefab, targetPosition, Quaternion.identity);
 
-            SendTCPMessage($"{{\"type\":\"calib_start\", \"distance\": {d}}}");
+            var message = new Dictionary<string, object>
+            {
+                { "category", "calibration" },
+                { "action", "new_point" },
+                { "params", distances[i] }
+            };
+
+            SendTCPMessage(message);
 
             yield return new WaitForSeconds(targetDuration);
 
             Destroy(target);
+
         }
 
-        SendTCPMessage("{\"type\":\"calib_done\"}");
         instructionText.text = "Calibration complete.";
         instructionText.gameObject.SetActive(true);
     }
 
-    void SendTCPMessage(string msg)
+    void SendTCPMessage(Dictionary<string, object> msg)
     {
-        /*
+        string json = JsonConvert.SerializeObject(msg);
+
         if (tcpClient != null)
-            tcpClient.SendMessage(msg);
+            tcpClient.SendMessage(json);
         else
             Debug.LogWarning("TCPClient not assigned!");
-            */
+            
     }
 }

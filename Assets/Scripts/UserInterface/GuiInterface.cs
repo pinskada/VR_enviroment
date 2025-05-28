@@ -180,19 +180,19 @@ public class GuiInterface : MonoBehaviour
     }
 
     public void loadCalibScene(){
-        VRSceneManager.Instance.SwitchVRScene("CalibScene");
+        VRSceneManager.Instance.GoToCalibration();
     }
 
-    public void loadScene1(){
+    public void mainScene(){
         VRSceneManager.Instance.SwitchVRScene("SampleScene");
     }
 
-    public void loadScene2(){
-
+    public void PreviousScene(){
+        VRSceneManager.Instance.PreviousScene();
     }
 
-    public void loadScene3(){
-
+    public void loadNextScene(){
+        VRSceneManager.Instance.NextScene();
     }
 
     public void quitGame(){
