@@ -34,12 +34,11 @@ public class GuiInterface : MonoBehaviour
     [SerializeField] private TMP_InputField dispHeightField;
     [SerializeField] private TMP_InputField eyeToScreenField;
 
-    [SerializeField] private GuiHub guiHub;
-
     [SerializeField] private GameObject cameraPreviewPanel;
     [SerializeField] private GameObject trackerPreviewPanel;
     [SerializeField] private GameObject gazeProcPanel;
     [SerializeField] private GameObject displayPanel;
+    [SerializeField] private GuiHub guiHub;
     [SerializeField] private GUISettingsManager guiSettingsManager;
 
     string className;

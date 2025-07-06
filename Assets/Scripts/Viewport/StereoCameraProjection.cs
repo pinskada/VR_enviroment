@@ -18,7 +18,6 @@ public class StereoCameraProjection : MonoBehaviour
         // Optional: Disable stereo rendering if using manual stereo rendering
         eyeCamera.stereoTargetEye = StereoTargetEyeMask.None;
         StereoRigHub.InvokeReadyProjection(this);
-
     }
 
     void Update()

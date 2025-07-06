@@ -22,6 +22,17 @@ public class GUISettings
     public string rightMaxTrackR = "20";
     public string rightSrchStep = "10";
 
+    // Crop settings
+    public string leftCropLeft = "0.0";
+    public string leftCropRight = "0.5";
+    public string leftCropTop = "0.0";
+    public string leftCropBottom = "1.0";
+
+    public string rightCropLeft = "0.5";
+    public string rightCropRight = "1.0";
+    public string rightCropTop = "0.0";
+    public string rightCropBottom = "1.0";
+
     // Gaze processor settings
     public string alphaVal = "0.5";
     public string bufferCropFac = "0.1";

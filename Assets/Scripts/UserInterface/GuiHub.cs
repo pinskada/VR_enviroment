@@ -47,6 +47,8 @@ public class GuiHub : MonoBehaviour
     public void sendConfigToRpi(){
         guiInterface.ApplySettingsToRPI();
     }
+
+    
     void OnEnable()
     {
         StereoRigHub.OnStereoRigReady += OnStereoReady;
