@@ -14,7 +14,7 @@ public class Madgwick9DOFHandler : MonoBehaviour
     private Vector3 latestMag;
     private bool hasNewData = false;
     private MadgwickAHRS madgwick;
-    private Quaternion initialRotation; 
+    private Quaternion initialRotation;
     private bool resetRequested = false;
 
     private double lastPacketTime = 0f;
